@@ -17,6 +17,7 @@ class _MentorScreenState extends State<MentorScreen>
   final TextEditingController _searchController = TextEditingController();
   String _selectedFilter = 'Todos';
   late AnimationController _animationController;
+  List<String> connectedMentors = [];
 
   final Map<String, Map<String, String>> texts = {
     'es': {
@@ -103,6 +104,7 @@ class _MentorScreenState extends State<MentorScreen>
       'descriptionEn':
           'Experience helping students focus on academic management and stress handling.',
       'image': 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aruya',
+      'category': 'academico',
     },
     {
       'name': 'Mark Johnson',
@@ -116,6 +118,7 @@ class _MentorScreenState extends State<MentorScreen>
       'descriptionEn':
           'Chief educator focused on academic writing skills and career guidance.',
       'image': 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mark',
+      'category': 'academico',
     },
     {
       'name': 'Sarah Lee',
@@ -128,6 +131,7 @@ class _MentorScreenState extends State<MentorScreen>
           'Especialista en productividad. Ayuda a estudiantes con técnicas de estudio eficientes.',
       'descriptionEn': 'Specialist in productivity and time management.',
       'image': 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
+      'category': 'academico',
     },
     {
       'name': 'David Chen',
@@ -140,6 +144,49 @@ class _MentorScreenState extends State<MentorScreen>
           'Especializado en desarrollo de carrera. Ayuda a navegar opciones profesionales.',
       'descriptionEn': 'Specialized in career development and leadership.',
       'image': 'https://api.dicebear.com/7.x/avataaars/svg?seed=David',
+      'category': 'academico',
+    },
+    {
+      'name': 'Emma Wilson',
+      'specialty': 'Coach de Bienestar Emocional',
+      'specialtyEn': 'Emotional Wellness Coach',
+      'rating': 4.9,
+      'expertise': ['Salud Mental', 'Inteligencia Emocional'],
+      'expertiseEn': ['Mental Health', 'Emotional Intelligence'],
+      'description':
+          'Especializada en apoyo emocional y bienestar mental. Crea espacios seguros de confianza.',
+      'descriptionEn':
+          'Specialized in emotional support and mental wellness. Creates safe spaces.',
+      'image': 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emma',
+      'category': 'emocional',
+    },
+    {
+      'name': 'James Rodriguez',
+      'specialty': 'Consejero de Vida',
+      'specialtyEn': 'Life Counselor',
+      'rating': 4.8,
+      'expertise': ['Autoaceptación', 'Relaciones Interpersonales'],
+      'expertiseEn': ['Self-Acceptance', 'Relationships'],
+      'description':
+          'Te ayuda a navegar desafíos personales y emocionales con empatía y comprensión.',
+      'descriptionEn':
+          'Helps navigate personal challenges with empathy and understanding.',
+      'image': 'https://api.dicebear.com/7.x/avataaars/svg?seed=James',
+      'category': 'emocional',
+    },
+    {
+      'name': 'Sophia Martinez',
+      'specialty': 'Asesora de Autoestima',
+      'specialtyEn': 'Self-Esteem Advisor',
+      'rating': 4.7,
+      'expertise': ['Confianza Personal', 'Motivación'],
+      'expertiseEn': ['Self-Confidence', 'Motivation'],
+      'description':
+          'Ayuda a construir confianza en ti mismo y superar la inseguridad emocional.',
+      'descriptionEn':
+          'Helps build self-confidence and overcome emotional insecurity.',
+      'image': 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sophia',
+      'category': 'emocional',
     },
   ];
 
