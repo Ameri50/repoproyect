@@ -82,6 +82,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'respuesta3': 'Ve a Preferencias > Idioma y selecciona tu idioma preferido.',
       'pregunta4': '¿Cómo activo el modo oscuro?',
       'respuesta4': 'Ve a Preferencias > Apariencia y activa el modo oscuro.',
+      'modoClaro': 'Modo Claro',
+      'modoOscuro': 'Modo Oscuro',
+      'modoAdaptativo': 'Modo Adaptativo',
+      'modoAdaptativoDesc': 'Cambiar según la hora del día',
     },
     'en': {
       'perfil': 'My Profile',
@@ -142,6 +146,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'respuesta3': 'Go to Preferences > Language and select your preferred language.',
       'pregunta4': 'How do I enable dark mode?',
       'respuesta4': 'Go to Preferences > Appearance and enable dark mode.',
+      'modoClaro': 'Light Mode',
+      'modoOscuro': 'Dark Mode',
+      'modoAdaptativo': 'Adaptive Mode',
+      'modoAdaptativoDesc': 'Change based on time of day',
     },
   };
 
@@ -851,6 +859,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             bool pushNotif = true;
             bool dataSharing = false;
             bool analytics = true;
+            bool adaptiveMode = themeProvider.isAdaptiveMode;
 
             return Container(
               decoration: BoxDecoration(
@@ -993,33 +1002,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: cardColor,
-                          border: Border.all(color: borderColor),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              isDarkMode ? 'Modo Oscuro' : 'Modo Claro',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: textColor,
-                              ),
-                            ),
-                            Switch(
-                              value: isDarkMode,
-                              onChanged: (value) {
-                                themeProvider.toggleTheme();
-                              },
-                              activeThumbColor: const Color(0xFF8b5cf6),
-                            ),
-                          ],
-                        ),
+                      
+                      // Modo Claro
+                      _buildThemeModeButton(
+                        label: getText('modoClaro', selectedLanguage),
+                        icon: Icons.light_mode,
+                        isSelected: !isDarkMode && !adaptiveMode,
+                        onTap: () {
+                          setStateModal(() {
+                            adaptiveMode = false;
+                          });
+                          themeProvider.setThemeMode(ThemeMode.light);
+                        },
+                        isDarkMode: isDarkMode,
+                        textColor: textColor,
+                        cardColor: cardColor,
+                        borderColor: borderColor,
+                      ),
+                      const SizedBox(height: 10),
+                      
+                      // Modo Oscuro
+                      _buildThemeModeButton(
+                        label: getText('modoOscuro', selectedLanguage),
+                        icon: Icons.dark_mode,
+                        isSelected: isDarkMode && !adaptiveMode,
+                        onTap: () {
+                          setStateModal(() {
+                            adaptiveMode = false;
+                          });
+                          themeProvider.setThemeMode(ThemeMode.dark);
+                        },
+                        isDarkMode: isDarkMode,
+                        textColor: textColor,
+                        cardColor: cardColor,
+                        borderColor: borderColor,
+                      ),
+                      const SizedBox(height: 10),
+                      
+                      // Modo Adaptativo
+                      _buildThemeModeButton(
+                        label: getText('modoAdaptativo', selectedLanguage),
+                        subtitle: getText('modoAdaptativoDesc', selectedLanguage),
+                        icon: Icons.brightness_auto,
+                        isSelected: adaptiveMode,
+                        onTap: () {
+                          setStateModal(() {
+                            adaptiveMode = true;
+                          });
+                          themeProvider.setAdaptiveMode(true);
+                        },
+                        isDarkMode: isDarkMode,
+                        textColor: textColor,
+                        cardColor: cardColor,
+                        borderColor: borderColor,
                       ),
 
                       const SizedBox(height: 24),
@@ -1071,6 +1106,117 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
         );
       },
+    );
+  }
+
+  Widget _buildThemeModeButton({
+    required String label,
+    String? subtitle,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required bool isDarkMode,
+    required Color textColor,
+    required Color? cardColor,
+    required Color? borderColor,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: cardColor,
+          border: Border.all(
+            color: isSelected ? const Color(0xFF8b5cf6) : borderColor!,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF8b5cf6).withOpacity(0.2),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : [],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: isSelected
+                      ? [const Color(0xFF8b5cf6), const Color(0xFF06b6d4)]
+                      : [Colors.grey[400]!, Colors.grey[500]!],
+                ),
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: isDarkMode ? Colors.grey[500] : Colors.grey[500],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (isSelected)
+              Container(
+                width: 24,
+                height: 24,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF8b5cf6), Color(0xFF06b6d4)],
+                  ),
+                ),
+                child: const Icon(
+                  Icons.check,
+                  color: Colors.white,
+                  size: 14,
+                ),
+              )
+            else
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isDarkMode ? Colors.grey[600]! : Colors.grey[400]!,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
