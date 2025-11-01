@@ -86,6 +86,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'modoOscuro': 'Modo Oscuro',
       'modoAdaptativo': 'Modo Adaptativo',
       'modoAdaptativoDesc': 'Cambiar según la hora del día',
+      'restablecer': 'Restablecer Preferencias',
+      'restablecerDesc': 'Volver a los ajustes predeterminados',
     },
     'en': {
       'perfil': 'My Profile',
@@ -275,7 +277,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               IconButton(
-                onPressed: () => _showPreferencesModal(context, themeProvider, isDarkMode, selectedLanguage, textColor, cardColor, borderColor),
+                onPressed: () => _showPreferencesModal(context, themeProvider),
                 icon: const Icon(Icons.settings, size: 24),
                 color: isDarkMode ? Colors.grey[400] : Colors.grey,
               ),
@@ -285,7 +287,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  // Hero Avatar Section
                   Container(
                     margin: const EdgeInsets.all(20),
                     padding: const EdgeInsets.all(32),
@@ -512,8 +513,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ).animate().slideY(begin: 0.3, duration: 600.ms, delay: 100.ms),
-
-                  // Stats Cards
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
@@ -561,10 +560,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ).animate().slideY(begin: 0.3, duration: 600.ms, delay: 200.ms),
-
                   const SizedBox(height: 32),
-
-                  // Help Section
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
@@ -588,8 +584,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => HelpCenterScreen(
-                                  isDarkMode: isDarkMode,
-                                  selectedLanguage: selectedLanguage,
                                   getText: getText,
                                 ),
                               ),
@@ -609,8 +603,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => FeedbackScreen(
-                                  isDarkMode: isDarkMode,
-                                  selectedLanguage: selectedLanguage,
                                   getText: getText,
                                 ),
                               ),
@@ -630,8 +622,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => AboutScreen(
-                                  isDarkMode: isDarkMode,
-                                  selectedLanguage: selectedLanguage,
                                   getText: getText,
                                 ),
                               ),
@@ -645,10 +635,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ).animate().slideY(begin: 0.3, duration: 600.ms, delay: 300.ms),
-
                   const SizedBox(height: 24),
-
-                  // Logout Button
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                     child: SizedBox(
@@ -677,7 +664,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ).animate().scale(duration: 600.ms, delay: 400.ms),
-
                   const SizedBox(height: 80),
                 ],
               ),
@@ -847,261 +833,238 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showPreferencesModal(BuildContext context, ThemeProvider themeProvider, bool isDarkMode, String selectedLanguage, Color textColor, Color? cardColor, Color? borderColor) {
+  void _showPreferencesModal(BuildContext context, ThemeProvider themeProvider) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setStateModal) {
-            bool emailNotif = true;
-            bool pushNotif = true;
-            bool dataSharing = false;
-            bool analytics = true;
-            bool adaptiveMode = themeProvider.isAdaptiveMode;
+        return Consumer<ThemeProvider>(
+          builder: (context, provider, _) {
+            final isDarkMode = provider.isDarkMode;
+            final selectedLanguage = provider.selectedLanguage;
+            final bgColor = isDarkMode ? const Color(0xFF1e2139) : Colors.white;
+            final textColor = isDarkMode ? Colors.white : const Color(0xFF1a1a2e);
+            final cardColor = isDarkMode ? const Color(0xFF1e2139) : Colors.white;
+            final borderColor = isDarkMode ? Colors.grey[800] : Colors.grey[300];
 
-            return Container(
-              decoration: BoxDecoration(
-                color: isDarkMode ? const Color(0xFF1e2139) : Colors.white,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(28),
-                  topRight: Radius.circular(28),
-                ),
-              ),
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Container(
-                          width: 40,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(2),
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        getText('preferencias', selectedLanguage),
-                        style: GoogleFonts.poppins(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: textColor,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
+            return StatefulBuilder(
+              builder: (context, setStateModal) {
+                bool emailNotif = true;
+                bool pushNotif = true;
+                bool dataSharing = false;
+                bool analytics = true;
 
-                      // Notificaciones
-                      Text(
-                        getText('notificaciones', selectedLanguage),
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: textColor,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildPreferenceSwitch(
-                        label: getText('correoNotificaciones', selectedLanguage),
-                        value: emailNotif,
-                        onChanged: (value) {
-                          setStateModal(() {
-                            emailNotif = value;
-                          });
-                        },
-                        isDarkMode: isDarkMode,
-                        textColor: textColor,
-                        cardColor: cardColor,
-                        borderColor: borderColor,
-                      ),
-                      const SizedBox(height: 10),
-                      _buildPreferenceSwitch(
-                        label: getText('notificacionesPush', selectedLanguage),
-                        value: pushNotif,
-                        onChanged: (value) {
-                          setStateModal(() {
-                            pushNotif = value;
-                          });
-                        },
-                        isDarkMode: isDarkMode,
-                        textColor: textColor,
-                        cardColor: cardColor,
-                        borderColor: borderColor,
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Idioma
-                      Text(
-                        getText('idioma', selectedLanguage),
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: textColor,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: cardColor,
-                          border: Border.all(color: borderColor!),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              selectedLanguage == 'es' ? 'Español' : 'English',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: textColor,
+                return Container(
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(28),
+                      topRight: Radius.circular(28),
+                    ),
+                  ),
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Container(
+                              width: 40,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(2),
+                                color: Colors.grey[600],
                               ),
                             ),
-                            PopupMenuButton<String>(
-                              onSelected: (value) {
-                                themeProvider.setLanguage(value);
-                              },
-                              itemBuilder: (BuildContext context) => [
-                                PopupMenuItem(
-                                  value: 'es',
-                                  child: Text(
-                                    'Español',
-                                    style: GoogleFonts.poppins(),
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            getText('preferencias', selectedLanguage),
+                            style: GoogleFonts.poppins(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              color: textColor,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            getText('notificaciones', selectedLanguage),
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildPreferenceSwitch(
+                            label: getText('correoNotificaciones', selectedLanguage),
+                            value: emailNotif,
+                            onChanged: (value) {
+                              setStateModal(() {
+                                emailNotif = value;
+                              });
+                            },
+                            isDarkMode: isDarkMode,
+                            textColor: textColor,
+                            cardColor: cardColor,
+                            borderColor: borderColor,
+                          ),
+                          const SizedBox(height: 10),
+                          _buildPreferenceSwitch(
+                            label: getText('notificacionesPush', selectedLanguage),
+                            value: pushNotif,
+                            onChanged: (value) {
+                              setStateModal(() {
+                                pushNotif = value;
+                              });
+                            },
+                            isDarkMode: isDarkMode,
+                            textColor: textColor,
+                            cardColor: cardColor,
+                            borderColor: borderColor,
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            getText('idioma', selectedLanguage),
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: cardColor,
+                              border: Border.all(color: borderColor!),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  selectedLanguage == 'es' ? 'Español' : 'English',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
                                   ),
                                 ),
-                                PopupMenuItem(
-                                  value: 'en',
-                                  child: Text(
-                                    'English',
-                                    style: GoogleFonts.poppins(),
-                                  ),
+                                PopupMenuButton<String>(
+                                  onSelected: (value) {
+                                    provider.setLanguage(value);
+                                  },
+                                  itemBuilder: (BuildContext context) => [
+                                    PopupMenuItem(
+                                      value: 'es',
+                                      child: Text(
+                                        'Español',
+                                        style: GoogleFonts.poppins(),
+                                      ),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'en',
+                                      child: Text(
+                                        'English',
+                                        style: GoogleFonts.poppins(),
+                                      ),
+                                    ),
+                                  ],
+                                  child: const Icon(Icons.arrow_drop_down),
                                 ),
                               ],
-                              child: const Icon(Icons.arrow_drop_down),
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            getText('apariencia', selectedLanguage),
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildThemeModeButtonWidget(
+                            label: getText('modoClaro', selectedLanguage),
+                            icon: Icons.light_mode,
+                            isSelected: !isDarkMode && !provider.isAdaptiveMode,
+                            onTap: () => provider.setThemeMode(ThemeMode.light),
+                            isDarkMode: isDarkMode,
+                            textColor: textColor,
+                            cardColor: cardColor,
+                            borderColor: borderColor,
+                          ),
+                          const SizedBox(height: 10),
+                          _buildThemeModeButtonWidget(
+                            label: getText('modoOscuro', selectedLanguage),
+                            icon: Icons.dark_mode,
+                            isSelected: isDarkMode && !provider.isAdaptiveMode,
+                            onTap: () => provider.setThemeMode(ThemeMode.dark),
+                            isDarkMode: isDarkMode,
+                            textColor: textColor,
+                            cardColor: cardColor,
+                            borderColor: borderColor,
+                          ),
+                          const SizedBox(height: 10),
+                          _buildThemeModeButtonWidget(
+                            label: getText('modoAdaptativo', selectedLanguage),
+                            subtitle: getText('modoAdaptativoDesc', selectedLanguage),
+                            icon: Icons.brightness_auto,
+                            isSelected: provider.isAdaptiveMode,
+                            onTap: () => provider.setAdaptiveMode(true),
+                            isDarkMode: isDarkMode,
+                            textColor: textColor,
+                            cardColor: cardColor,
+                            borderColor: borderColor,
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            getText('privacidad', selectedLanguage),
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildPreferenceSwitch(
+                            label: getText('compartirDatos', selectedLanguage),
+                            value: dataSharing,
+                            onChanged: (value) {
+                              setStateModal(() {
+                                dataSharing = value;
+                              });
+                            },
+                            isDarkMode: isDarkMode,
+                            textColor: textColor,
+                            cardColor: cardColor,
+                            borderColor: borderColor,
+                          ),
+                          const SizedBox(height: 10),
+                          _buildPreferenceSwitch(
+                            label: getText('datos', selectedLanguage),
+                            value: analytics,
+                            onChanged: (value) {
+                              setStateModal(() {
+                                analytics = value;
+                              });
+                            },
+                            isDarkMode: isDarkMode,
+                            textColor: textColor,
+                            cardColor: cardColor,
+                            borderColor: borderColor,
+                          ),
+                          const SizedBox(height: 28),
+                        ],
                       ),
-
-                      const SizedBox(height: 24),
-
-                      // Apariencia
-                      Text(
-                        getText('apariencia', selectedLanguage),
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: textColor,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      
-                      // Modo Claro
-                      _buildThemeModeButton(
-                        label: getText('modoClaro', selectedLanguage),
-                        icon: Icons.light_mode,
-                        isSelected: !isDarkMode && !adaptiveMode,
-                        onTap: () {
-                          setStateModal(() {
-                            adaptiveMode = false;
-                          });
-                          themeProvider.setThemeMode(ThemeMode.light);
-                        },
-                        isDarkMode: isDarkMode,
-                        textColor: textColor,
-                        cardColor: cardColor,
-                        borderColor: borderColor,
-                      ),
-                      const SizedBox(height: 10),
-                      
-                      // Modo Oscuro
-                      _buildThemeModeButton(
-                        label: getText('modoOscuro', selectedLanguage),
-                        icon: Icons.dark_mode,
-                        isSelected: isDarkMode && !adaptiveMode,
-                        onTap: () {
-                          setStateModal(() {
-                            adaptiveMode = false;
-                          });
-                          themeProvider.setThemeMode(ThemeMode.dark);
-                        },
-                        isDarkMode: isDarkMode,
-                        textColor: textColor,
-                        cardColor: cardColor,
-                        borderColor: borderColor,
-                      ),
-                      const SizedBox(height: 10),
-                      
-                      // Modo Adaptativo
-                      _buildThemeModeButton(
-                        label: getText('modoAdaptativo', selectedLanguage),
-                        subtitle: getText('modoAdaptativoDesc', selectedLanguage),
-                        icon: Icons.brightness_auto,
-                        isSelected: adaptiveMode,
-                        onTap: () {
-                          setStateModal(() {
-                            adaptiveMode = true;
-                          });
-                          themeProvider.setAdaptiveMode(true);
-                        },
-                        isDarkMode: isDarkMode,
-                        textColor: textColor,
-                        cardColor: cardColor,
-                        borderColor: borderColor,
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Privacidad
-                      Text(
-                        getText('privacidad', selectedLanguage),
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: textColor,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildPreferenceSwitch(
-                        label: getText('compartirDatos', selectedLanguage),
-                        value: dataSharing,
-                        onChanged: (value) {
-                          setStateModal(() {
-                            dataSharing = value;
-                          });
-                        },
-                        isDarkMode: isDarkMode,
-                        textColor: textColor,
-                        cardColor: cardColor,
-                        borderColor: borderColor,
-                      ),
-                      const SizedBox(height: 10),
-                      _buildPreferenceSwitch(
-                        label: getText('datos', selectedLanguage),
-                        value: analytics,
-                        onChanged: (value) {
-                          setStateModal(() {
-                            analytics = value;
-                          });
-                        },
-                        isDarkMode: isDarkMode,
-                        textColor: textColor,
-                        cardColor: cardColor,
-                        borderColor: borderColor,
-                      ),
-
-                      const SizedBox(height: 28),
-                    ],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             );
           },
         );
@@ -1109,7 +1072,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildThemeModeButton({
+  Widget _buildThemeModeButtonWidget({
     required String label,
     String? subtitle,
     required IconData icon,
@@ -1117,7 +1080,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback onTap,
     required bool isDarkMode,
     required Color textColor,
-    required Color? cardColor,
+    required Color cardColor,
     required Color? borderColor,
   }) {
     return GestureDetector(
@@ -1260,133 +1223,129 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-// Pantalla Centro de Ayuda
 class HelpCenterScreen extends StatelessWidget {
-  final bool isDarkMode;
-  final String selectedLanguage;
   final Function getText;
 
   const HelpCenterScreen({
     super.key,
-    required this.isDarkMode,
-    required this.selectedLanguage,
     required this.getText,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = isDarkMode ? const Color(0xFF0f1419) : const Color(0xFFF5F7FA);
-    final textColor = isDarkMode ? Colors.white : const Color(0xFF1a1a2e);
-    final cardColor = isDarkMode ? const Color(0xFF1e2139) : Colors.white;
-    final borderColor = isDarkMode ? Colors.grey[800] : Colors.grey[300];
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) {
+        final isDarkMode = themeProvider.isDarkMode;
+        final selectedLanguage = themeProvider.selectedLanguage;
+        final bgColor = isDarkMode ? const Color(0xFF0f1419) : const Color(0xFFF5F7FA);
+        final textColor = isDarkMode ? Colors.white : const Color(0xFF1a1a2e);
+        final cardColor = isDarkMode ? const Color(0xFF1e2139) : Colors.white;
+        final borderColor = isDarkMode ? Colors.grey[800] : Colors.grey[300];
 
-    final faqs = [
-      {'q': 'pregunta1', 'a': 'respuesta1'},
-      {'q': 'pregunta2', 'a': 'respuesta2'},
-      {'q': 'pregunta3', 'a': 'respuesta3'},
-      {'q': 'pregunta4', 'a': 'respuesta4'},
-    ];
+        final faqs = [
+          {'q': 'pregunta1', 'a': 'respuesta1'},
+          {'q': 'pregunta2', 'a': 'respuesta2'},
+          {'q': 'pregunta3', 'a': 'respuesta3'},
+          {'q': 'pregunta4', 'a': 'respuesta4'},
+        ];
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      appBar: AppBar(
-        backgroundColor: bgColor,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: textColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          getText('centroAyuda', selectedLanguage),
-          style: GoogleFonts.poppins(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: textColor,
-          ),
-        ),
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(20),
-        itemCount: faqs.length,
-        itemBuilder: (context, index) {
-          final faq = faqs[index];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              color: cardColor,
-              border: Border.all(color: borderColor!, width: 1),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(isDarkMode ? 0.1 : 0.04),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+        return Scaffold(
+          backgroundColor: bgColor,
+          appBar: AppBar(
+            backgroundColor: bgColor,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: textColor),
+              onPressed: () => Navigator.pop(context),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFF8b5cf6),
-                      ),
+            title: Text(
+              getText('centroAyuda', selectedLanguage),
+              style: GoogleFonts.poppins(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: textColor,
+              ),
+            ),
+          ),
+          body: ListView.builder(
+            padding: const EdgeInsets.all(20),
+            itemCount: faqs.length,
+            itemBuilder: (context, index) {
+              final faq = faqs[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: cardColor,
+                  border: Border.all(color: borderColor!, width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(isDarkMode ? 0.1 : 0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFF8b5cf6),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            getText(faq['q'], selectedLanguage),
+                            style: GoogleFonts.poppins(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: textColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20),
                       child: Text(
-                        getText(faq['q'], selectedLanguage),
+                        getText(faq['a'], selectedLanguage),
                         style: GoogleFonts.poppins(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: textColor,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: isDarkMode ? Colors.grey[300] : Colors.grey[600],
+                          height: 1.6,
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: Text(
-                    getText(faq['a'], selectedLanguage),
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
-                      color: isDarkMode ? Colors.grey[300] : Colors.grey[600],
-                      height: 1.6,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ).animate().slideY(
-            begin: 0.3,
-            duration: 600.ms,
-            delay: Duration(milliseconds: 100 * index),
-          );
-        },
-      ),
+              ).animate().slideY(
+                begin: 0.3,
+                duration: 600.ms,
+                delay: Duration(milliseconds: 100 * index),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
 
-// Pantalla Enviar Comentarios
 class FeedbackScreen extends StatefulWidget {
-  final bool isDarkMode;
-  final String selectedLanguage;
   final Function getText;
 
   const FeedbackScreen({
     super.key,
-    required this.isDarkMode,
-    required this.selectedLanguage,
     required this.getText,
   });
 
@@ -1411,299 +1370,306 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = widget.isDarkMode ? const Color(0xFF0f1419) : const Color(0xFFF5F7FA);
-    final textColor = widget.isDarkMode ? Colors.white : const Color(0xFF1a1a2e);
-    final borderColor = widget.isDarkMode ? Colors.grey[800] : Colors.grey[300];
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) {
+        final isDarkMode = themeProvider.isDarkMode;
+        final selectedLanguage = themeProvider.selectedLanguage;
+        final bgColor = isDarkMode ? const Color(0xFF0f1419) : const Color(0xFFF5F7FA);
+        final textColor = isDarkMode ? Colors.white : const Color(0xFF1a1a2e);
+        final borderColor = isDarkMode ? Colors.grey[800] : Colors.grey[300];
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      appBar: AppBar(
-        backgroundColor: bgColor,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: textColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          widget.getText('comentarios', widget.selectedLanguage),
-          style: GoogleFonts.poppins(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: textColor,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.getText('tuComentario', widget.selectedLanguage),
+        return Scaffold(
+          backgroundColor: bgColor,
+          appBar: AppBar(
+            backgroundColor: bgColor,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: textColor),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: Text(
+              widget.getText('comentarios', selectedLanguage),
               style: GoogleFonts.poppins(
-                fontSize: 18,
+                fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: textColor,
               ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Nos encantaría escuchar tus sugerencias y comentarios',
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                fontWeight: FontWeight.w400,
-                color: widget.isDarkMode ? Colors.grey[400] : Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: _feedbackController,
-              maxLines: 8,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: textColor,
-              ),
-              decoration: InputDecoration(
-                hintText: widget.getText('tuComentario', widget.selectedLanguage),
-                hintStyle: GoogleFonts.poppins(
-                  color: widget.isDarkMode ? Colors.grey[600] : Colors.grey[400],
-                ),
-                filled: true,
-                fillColor: widget.isDarkMode ? Colors.grey[900] : Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: borderColor!),
-                ),
-                contentPadding: const EdgeInsets.all(18),
-              ),
-            ),
-            const SizedBox(height: 28),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (_feedbackController.text.isNotEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          widget.getText('guardarCambios', widget.selectedLanguage),
-                        ),
-                        backgroundColor: const Color(0xFF8b5cf6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        margin: const EdgeInsets.all(16),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                    Navigator.pop(context);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF8b5cf6),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  widget.getText('enviar', widget.selectedLanguage),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.getText('tuComentario', selectedLanguage),
                   style: GoogleFonts.poppins(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
                   ),
                 ),
-              ),
+                const SizedBox(height: 12),
+                Text(
+                  'Nos encantaría escuchar tus sugerencias y comentarios',
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _feedbackController,
+                  maxLines: 8,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: textColor,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: widget.getText('tuComentario', selectedLanguage),
+                    hintStyle: GoogleFonts.poppins(
+                      color: isDarkMode ? Colors.grey[600] : Colors.grey[400],
+                    ),
+                    filled: true,
+                    fillColor: isDarkMode ? Colors.grey[900] : Colors.grey[100],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(color: borderColor!),
+                    ),
+                    contentPadding: const EdgeInsets.all(18),
+                  ),
+                ),
+                const SizedBox(height: 28),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_feedbackController.text.isNotEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              widget.getText('guardarCambios', selectedLanguage),
+                            ),
+                            backgroundColor: const Color(0xFF8b5cf6),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            margin: const EdgeInsets.all(16),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                        Navigator.pop(context);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF8b5cf6),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      widget.getText('enviar', selectedLanguage),
+                      style: GoogleFonts.poppins(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
 
-// Pantalla Acerca de
 class AboutScreen extends StatelessWidget {
-  final bool isDarkMode;
-  final String selectedLanguage;
   final Function getText;
 
   const AboutScreen({
     super.key,
-    required this.isDarkMode,
-    required this.selectedLanguage,
     required this.getText,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = isDarkMode ? const Color(0xFF0f1419) : const Color(0xFFF5F7FA);
-    final textColor = isDarkMode ? Colors.white : const Color(0xFF1a1a2e);
-    final cardColor = isDarkMode ? const Color(0xFF1e2139) : Colors.white;
-    final borderColor = isDarkMode ? Colors.grey[800] : Colors.grey[300];
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) {
+        final isDarkMode = themeProvider.isDarkMode;
+        final selectedLanguage = themeProvider.selectedLanguage;
+        final bgColor = isDarkMode ? const Color(0xFF0f1419) : const Color(0xFFF5F7FA);
+        final textColor = isDarkMode ? Colors.white : const Color(0xFF1a1a2e);
+        final cardColor = isDarkMode ? const Color(0xFF1e2139) : Colors.white;
+        final borderColor = isDarkMode ? Colors.grey[800] : Colors.grey[300];
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      appBar: AppBar(
-        backgroundColor: bgColor,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: textColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          getText('acerca', selectedLanguage),
-          style: GoogleFonts.poppins(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: textColor,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(28),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: cardColor,
-                border: Border.all(color: borderColor!, width: 1),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(isDarkMode ? 0.2 : 0.08),
-                    blurRadius: 16,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 90,
-                    height: 90,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF8b5cf6), Color(0xFF06b6d4)],
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.school,
-                      color: Colors.white,
-                      size: 45,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'MentoriA',
-                    style: GoogleFonts.poppins(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w700,
-                      color: textColor,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    getText('acercaSub', selectedLanguage),
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
+        return Scaffold(
+          backgroundColor: bgColor,
+          appBar: AppBar(
+            backgroundColor: bgColor,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: textColor),
+              onPressed: () => Navigator.pop(context),
             ),
-            const SizedBox(height: 28),
-            Text(
-              'Sobre Nosotros',
+            title: Text(
+              getText('acerca', selectedLanguage),
               style: GoogleFonts.poppins(
-                fontSize: 18,
+                fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: textColor,
               ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              'MentoriA es una plataforma inteligente de mentoría diseñada para ayudarte en tu viaje académico. Con características innovadoras y un enfoque centrado en el estudiante, te proporcionamos las herramientas que necesitas para tener éxito.',
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                color: isDarkMode ? Colors.grey[300] : Colors.grey[600],
-                height: 1.8,
-              ),
-            ),
-            const SizedBox(height: 28),
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: cardColor,
-                border: Border.all(color: borderColor),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(28),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: cardColor,
+                    border: Border.all(color: borderColor!, width: 1),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(isDarkMode ? 0.2 : 0.08),
+                        blurRadius: 16,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      Container(
+                        width: 90,
+                        height: 90,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF8b5cf6), Color(0xFF06b6d4)],
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.school,
+                          color: Colors.white,
+                          size: 45,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       Text(
-                        getText('version', selectedLanguage),
+                        'MentoriA',
                         style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 32,
+                          fontWeight: FontWeight.w700,
                           color: textColor,
                         ),
                       ),
+                      const SizedBox(height: 8),
                       Text(
-                        '1.0.0',
+                        getText('acercaSub', selectedLanguage),
                         style: GoogleFonts.poppins(
                           fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF8b5cf6),
+                          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
-                  Divider(
-                    color: borderColor,
-                    height: 1,
+                ),
+                const SizedBox(height: 28),
+                Text(
+                  'Sobre Nosotros',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
                   ),
-                  const SizedBox(height: 14),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'MentoriA es una plataforma inteligente de mentoría diseñada para ayudarte en tu viaje académico. Con características innovadoras y un enfoque centrado en el estudiante, te proporcionamos las herramientas que necesitas para tener éxito.',
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: isDarkMode ? Colors.grey[300] : Colors.grey[600],
+                    height: 1.8,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: cardColor,
+                    border: Border.all(color: borderColor),
+                  ),
+                  child: Column(
                     children: [
-                      Text(
-                        getText('desarrollador', selectedLanguage),
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: textColor,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            getText('version', selectedLanguage),
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
+                          ),
+                          Text(
+                            '1.0.0',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF8b5cf6),
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        'MentoriA Team',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF8b5cf6),
-                        ),
+                      const SizedBox(height: 14),
+                      Divider(
+                        color: borderColor,
+                        height: 1,
+                      ),
+                      const SizedBox(height: 14),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            getText('desarrollador', selectedLanguage),
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
+                          ),
+                          Text(
+                            'MentoriA Team',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF8b5cf6),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

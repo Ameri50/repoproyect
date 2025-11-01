@@ -5,7 +5,7 @@ class ThemeProvider extends ChangeNotifier {
   bool _isDarkMode = false;
   String _selectedLanguage = 'es';
   bool _isAdaptiveMode = false;
-  late Timer _adaptiveTimer;
+  Timer? _adaptiveTimer;
 
   bool get isDarkMode => _isDarkMode;
   String get selectedLanguage => _selectedLanguage;
@@ -36,20 +36,23 @@ class ThemeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _cancelAdaptiveTimer() {
+    if (_adaptiveTimer != null && _adaptiveTimer!.isActive) {
+      _adaptiveTimer!.cancel();
+      _adaptiveTimer = null;
+    }
+  }
+
   void toggleTheme() {
     _isAdaptiveMode = false;
-    if (_adaptiveTimer.isActive) {
-      _adaptiveTimer.cancel();
-    }
+    _cancelAdaptiveTimer();
     _isDarkMode = !_isDarkMode;
     notifyListeners();
   }
 
   void setThemeMode(ThemeMode mode) {
     _isAdaptiveMode = false;
-    if (_adaptiveTimer.isActive) {
-      _adaptiveTimer.cancel();
-    }
+    _cancelAdaptiveTimer();
     
     if (mode == ThemeMode.light) {
       _isDarkMode = false;
@@ -68,9 +71,7 @@ class ThemeProvider extends ChangeNotifier {
         _checkTimeAndUpdateTheme();
       });
     } else {
-      if (_adaptiveTimer.isActive) {
-        _adaptiveTimer.cancel();
-      }
+      _cancelAdaptiveTimer();
     }
     notifyListeners();
   }
@@ -113,9 +114,7 @@ class ThemeProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    if (_adaptiveTimer.isActive) {
-      _adaptiveTimer.cancel();
-    }
+    _cancelAdaptiveTimer();
     super.dispose();
   }
 }
