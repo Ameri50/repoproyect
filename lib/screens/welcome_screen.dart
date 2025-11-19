@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:mentoria/providers/theme_provider.dart'; // ✅ CORRECTO
+import 'package:mentoria/providers/theme_provider.dart';
 import 'dashboard_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -92,7 +92,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             ),
             child: Stack(
               children: [
-                // Animated Floating Particles
                 Positioned.fill(
                   child: AnimatedBuilder(
                     animation: _controller,
@@ -106,8 +105,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     },
                   ),
                 ),
-
-                // Main Content
                 SafeArea(
                   child: SingleChildScrollView(
                     child: SizedBox(
@@ -115,10 +112,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          // Top Section: Logo and Title
                           Column(
                             children: [
-                              // Animated Logo Container
                               Container(
                                 width: 140,
                                 height: 140,
@@ -158,8 +153,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                   )
                                   .fadeIn(),
                               const SizedBox(height: 30),
-
-                              // Title
                               Text(
                                 getText('appName', selectedLanguage),
                                 style: GoogleFonts.poppins(
@@ -176,10 +169,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                     duration: 600.ms,
                                     delay: 200.ms,
                                   ),
-
                               const SizedBox(height: 8),
-
-                              // Tagline
                               Text(
                                 getText('tagline', selectedLanguage),
                                 style: GoogleFonts.poppins(
@@ -197,10 +187,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                     duration: 600.ms,
                                     delay: 400.ms,
                                   ),
-
                               const SizedBox(height: 12),
-
-                              // Description
                               SizedBox(
                                 width: 280,
                                 child: Text(
@@ -218,8 +205,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                   .fadeIn(duration: 600.ms, delay: 600.ms),
                             ],
                           ),
-
-                          // Middle Section: Motivational Quote
                           ClipRRect(
                             borderRadius: BorderRadius.circular(24),
                             child: BackdropFilter(
@@ -278,11 +263,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 delay: 600.ms,
                               )
                               .fadeIn(),
-
-                          // Bottom Section: Button and Indicators
                           Column(
                             children: [
-                              // Start Button
                               Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(32),
@@ -364,45 +346,29 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                     curve: Curves.easeOut,
                                   )
                                   .fadeIn(),
-
                               const SizedBox(height: 24),
-
-                              // Theme and Language Toggle Buttons - FUNCIONALES
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.center,
                                 children: [
-                                  // Theme Toggle Button
-                                  GestureDetector(
-                                    onTap: () {
-                                      themeProvider.toggleTheme();
-                                    },
-                                    child: _buildToggleButton(
-                                      icon: isDarkMode
-                                          ? Icons.dark_mode_rounded
-                                          : Icons.light_mode_rounded,
-                                      label: isDarkMode
-                                          ? (selectedLanguage == 'es'
-                                              ? 'Oscuro'
-                                              : 'Dark')
-                                          : (selectedLanguage == 'es'
-                                              ? 'Claro'
-                                              : 'Light'),
-                                    ),
+                                  _buildIndicatorPill(
+                                    isDarkMode
+                                        ? Icons.dark_mode_rounded
+                                        : Icons.light_mode_rounded,
+                                    isDarkMode
+                                        ? (selectedLanguage == 'es'
+                                            ? 'Oscuro'
+                                            : 'Dark')
+                                        : (selectedLanguage == 'es'
+                                            ? 'Claro'
+                                            : 'Light'),
                                   ),
                                   const SizedBox(width: 12),
-
-                                  // Language Toggle Button
-                                  GestureDetector(
-                                    onTap: () {
-                                      themeProvider.toggleLanguage();
-                                    },
-                                    child: _buildToggleButton(
-                                      icon: Icons.language_rounded,
-                                      label: selectedLanguage == 'es'
-                                          ? 'Español'
-                                          : 'English',
-                                    ),
+                                  _buildIndicatorPill(
+                                    Icons.language_rounded,
+                                    selectedLanguage == 'es'
+                                        ? 'Español'
+                                        : 'English',
                                   ),
                                 ],
                               )
@@ -423,10 +389,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
   }
 
-  Widget _buildToggleButton({
-    required IconData icon,
-    required String label,
-  }) {
+  Widget _buildIndicatorPill(IconData icon, String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
@@ -467,7 +430,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 }
 
-// Custom Particle Painter
 class ParticlePainter extends CustomPainter {
   final double animationValue;
   final bool isDarkMode;
@@ -479,26 +441,24 @@ class ParticlePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.08)
+      ..strokeWidth = 2;
+
     final centerX = size.width / 2;
     final centerY = size.height / 2;
 
-    // Draw animated circles
     for (int i = 0; i < 3; i++) {
       final radius = 50.0 + (i * 40) + (animationValue * 30);
       final opacity = (1 - animationValue) * 0.15;
 
-      final circlePaint = Paint()
-        ..color = Colors.white.withOpacity(opacity)
-        ..strokeWidth = 2;
-
       canvas.drawCircle(
         Offset(centerX, centerY),
         radius,
-        circlePaint,
+        paint..color = Colors.white.withOpacity(opacity),
       );
     }
 
-    // Draw floating particles
     for (int i = 0; i < 8; i++) {
       final angle = (i / 8) * 2 * math.pi;
       final distance = 120 + (animationValue * 50);
@@ -508,14 +468,10 @@ class ParticlePainter extends CustomPainter {
       final particleOpacity =
           (0.2 * (1 - (animationValue * animationValue))).clamp(0.0, 0.2);
 
-      final particlePaint = Paint()
-        ..color = Colors.white.withOpacity(particleOpacity)
-        ..strokeWidth = 2;
-
       canvas.drawCircle(
         Offset(x, y),
         3,
-        particlePaint,
+        paint..color = Colors.white.withOpacity(particleOpacity),
       );
     }
   }

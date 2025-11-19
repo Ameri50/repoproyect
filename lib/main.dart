@@ -1,10 +1,13 @@
-// ignore_for_file: depend_on_referenced_packages
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'screens/welcome_screen.dart';
-import 'providers/theme_provider.dart';
+
+import 'package:mentoria/screens/welcome_screen.dart';
+import 'package:mentoria/providers/theme_provider.dart';
+import 'package:mentoria/providers/notifications_provider.dart';
+import 'package:mentoria/providers/user_provider.dart'; // <-- agregamos esto
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -16,6 +19,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationsProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()), // <-- necesario
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, _) {
@@ -24,7 +29,9 @@ class MyApp extends StatelessWidget {
             title: 'MentoriA',
             theme: themeProvider.themeData,
             darkTheme: themeProvider.themeData,
-            themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            themeMode: themeProvider.isDarkMode
+                ? ThemeMode.dark
+                : ThemeMode.light,
             home: const WelcomeScreen(),
           );
         },
