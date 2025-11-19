@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:mentoria/providers/theme_provider.dart';
+import 'package:mentoria/providers/theme_provider.dart'; // ✅ CORRECTO
 import 'dashboard_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -367,32 +367,42 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
                               const SizedBox(height: 24),
 
-                              // Theme and Language Indicators
+                              // Theme and Language Toggle Buttons - FUNCIONALES
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.center,
                                 children: [
-                                  // Theme Toggle Indicator
-                                  _buildIndicatorPill(
-                                    isDarkMode
-                                        ? Icons.dark_mode_rounded
-                                        : Icons.light_mode_rounded,
-                                    isDarkMode
-                                        ? (selectedLanguage == 'es'
-                                            ? 'Oscuro'
-                                            : 'Dark')
-                                        : (selectedLanguage == 'es'
-                                            ? 'Claro'
-                                            : 'Light'),
+                                  // Theme Toggle Button
+                                  GestureDetector(
+                                    onTap: () {
+                                      themeProvider.toggleTheme();
+                                    },
+                                    child: _buildToggleButton(
+                                      icon: isDarkMode
+                                          ? Icons.dark_mode_rounded
+                                          : Icons.light_mode_rounded,
+                                      label: isDarkMode
+                                          ? (selectedLanguage == 'es'
+                                              ? 'Oscuro'
+                                              : 'Dark')
+                                          : (selectedLanguage == 'es'
+                                              ? 'Claro'
+                                              : 'Light'),
+                                    ),
                                   ),
                                   const SizedBox(width: 12),
 
-                                  // Language Indicator
-                                  _buildIndicatorPill(
-                                    Icons.language_rounded,
-                                    selectedLanguage == 'es'
-                                        ? 'Español'
-                                        : 'English',
+                                  // Language Toggle Button
+                                  GestureDetector(
+                                    onTap: () {
+                                      themeProvider.toggleLanguage();
+                                    },
+                                    child: _buildToggleButton(
+                                      icon: Icons.language_rounded,
+                                      label: selectedLanguage == 'es'
+                                          ? 'Español'
+                                          : 'English',
+                                    ),
                                   ),
                                 ],
                               )
@@ -413,7 +423,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
   }
 
-  Widget _buildIndicatorPill(IconData icon, String label) {
+  Widget _buildToggleButton({
+    required IconData icon,
+    required String label,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
@@ -466,10 +479,6 @@ class ParticlePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withOpacity(0.08)
-      ..strokeWidth = 2;
-
     final centerX = size.width / 2;
     final centerY = size.height / 2;
 
@@ -478,10 +487,14 @@ class ParticlePainter extends CustomPainter {
       final radius = 50.0 + (i * 40) + (animationValue * 30);
       final opacity = (1 - animationValue) * 0.15;
 
+      final circlePaint = Paint()
+        ..color = Colors.white.withOpacity(opacity)
+        ..strokeWidth = 2;
+
       canvas.drawCircle(
         Offset(centerX, centerY),
         radius,
-        paint..color = Colors.white.withOpacity(opacity),
+        circlePaint,
       );
     }
 
@@ -495,10 +508,14 @@ class ParticlePainter extends CustomPainter {
       final particleOpacity =
           (0.2 * (1 - (animationValue * animationValue))).clamp(0.0, 0.2);
 
+      final particlePaint = Paint()
+        ..color = Colors.white.withOpacity(particleOpacity)
+        ..strokeWidth = 2;
+
       canvas.drawCircle(
         Offset(x, y),
         3,
-        paint..color = Colors.white.withOpacity(particleOpacity),
+        particlePaint,
       );
     }
   }

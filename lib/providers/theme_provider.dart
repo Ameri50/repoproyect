@@ -1,120 +1,207 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:google_fonts/google_fonts.dart';
 
 class ThemeProvider extends ChangeNotifier {
   bool _isDarkMode = false;
-  String _selectedLanguage = 'es';
+  String _selectedLanguage = 'es'; // ✅ INICIAL EN ESPAÑOL
   bool _isAdaptiveMode = false;
-  Timer? _adaptiveTimer;
 
+  // Getters
   bool get isDarkMode => _isDarkMode;
   String get selectedLanguage => _selectedLanguage;
   bool get isAdaptiveMode => _isAdaptiveMode;
 
-  ThemeProvider() {
-    _initializeAdaptiveMode();
-  }
-
-  void _initializeAdaptiveMode() {
-    if (_isAdaptiveMode) {
-      _checkTimeAndUpdateTheme();
-      // Actualizar cada minuto
-      _adaptiveTimer = Timer.periodic(const Duration(minutes: 1), (_) {
-        _checkTimeAndUpdateTheme();
-      });
+  // Getter para themeData
+  ThemeData get themeData {
+    if (_isDarkMode) {
+      return _buildDarkTheme();
+    } else {
+      return _buildLightTheme();
     }
   }
 
-  void _checkTimeAndUpdateTheme() {
-    final hour = DateTime.now().hour;
-    
-    // Considera noche de 19:00 (7 PM) a 06:00 (6 AM)
-    // Considera día de 06:00 a 19:00
-    final isNight = hour >= 19 || hour < 6;
-    
-    _isDarkMode = isNight;
-    notifyListeners();
-  }
-
-  void _cancelAdaptiveTimer() {
-    if (_adaptiveTimer != null && _adaptiveTimer!.isActive) {
-      _adaptiveTimer!.cancel();
-      _adaptiveTimer = null;
-    }
-  }
-
+  // ✅ CAMBIAR TEMA - Notifica a todos los listeners
   void toggleTheme() {
-    _isAdaptiveMode = false;
-    _cancelAdaptiveTimer();
     _isDarkMode = !_isDarkMode;
     notifyListeners();
   }
 
   void setThemeMode(ThemeMode mode) {
     _isAdaptiveMode = false;
-    _cancelAdaptiveTimer();
-    
-    if (mode == ThemeMode.light) {
-      _isDarkMode = false;
-    } else if (mode == ThemeMode.dark) {
+    if (mode == ThemeMode.dark) {
       _isDarkMode = true;
+    } else if (mode == ThemeMode.light) {
+      _isDarkMode = false;
     }
     notifyListeners();
   }
 
-  void setAdaptiveMode(bool isAdaptive) {
-    _isAdaptiveMode = isAdaptive;
-    
-    if (isAdaptive) {
-      _checkTimeAndUpdateTheme();
-      _adaptiveTimer = Timer.periodic(const Duration(minutes: 1), (_) {
-        _checkTimeAndUpdateTheme();
-      });
-    } else {
-      _cancelAdaptiveTimer();
-    }
+  void setAdaptiveMode(bool adaptive) {
+    _isAdaptiveMode = adaptive;
+    notifyListeners();
+  }
+
+  // ✅ CAMBIAR IDIOMA - Notifica a todos los listeners
+  void toggleLanguage() {
+    _selectedLanguage = _selectedLanguage == 'es' ? 'en' : 'es';
     notifyListeners();
   }
 
   void setLanguage(String language) {
-    _selectedLanguage = language;
-    notifyListeners();
+    if (language == 'es' || language == 'en') {
+      if (_selectedLanguage != language) {
+        _selectedLanguage = language;
+        notifyListeners();
+      }
+    }
   }
 
-  // ThemeData para modo claro
-  ThemeData get _lightTheme {
-    return ThemeData.light().copyWith(
-      scaffoldBackgroundColor: const Color(0xFFF5F7FA),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFFF5F7FA),
-        elevation: 0,
-      ),
-      primaryColor: const Color(0xFF8b5cf6),
+  // Tema Claro
+  ThemeData _buildLightTheme() {
+    return ThemeData(
       useMaterial3: true,
+      brightness: Brightness.light,
+      primaryColor: const Color(0xFF8b5cf6),
+      scaffoldBackgroundColor: Colors.white,
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF0b1e6b)),
+        titleTextStyle: GoogleFonts.poppins(
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFF0b1e6b),
+        ),
+      ),
+      textTheme: TextTheme(
+        displayLarge: GoogleFonts.poppins(
+          fontSize: 32,
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFF0b1e6b),
+        ),
+        bodyLarge: GoogleFonts.poppins(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: const Color(0xFF0b1e6b),
+        ),
+        bodyMedium: GoogleFonts.poppins(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          color: Colors.grey[600],
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.grey[50],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey[200]!),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey[200]!, width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(
+            color: Color(0xFF8b5cf6),
+            width: 2.5,
+          ),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF8b5cf6),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 4,
+        ),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFF8b5cf6),
+        unselectedItemColor: Colors.grey[400],
+        type: BottomNavigationBarType.fixed,
+        elevation: 16,
+      ),
     );
   }
 
-  // ThemeData para modo oscuro
-  ThemeData get _darkTheme {
-    return ThemeData.dark().copyWith(
-      scaffoldBackgroundColor: const Color(0xFF0f1419),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF0f1419),
-        elevation: 0,
-      ),
-      primaryColor: const Color(0xFF8b5cf6),
+  // Tema Oscuro
+  ThemeData _buildDarkTheme() {
+    return ThemeData(
       useMaterial3: true,
+      brightness: Brightness.dark,
+      primaryColor: const Color(0xFF8b5cf6),
+      scaffoldBackgroundColor: const Color(0xFF0f0f0f),
+      appBarTheme: AppBarTheme(
+        backgroundColor: const Color(0xFF0f0f0f),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: GoogleFonts.poppins(
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        ),
+      ),
+      textTheme: TextTheme(
+        displayLarge: GoogleFonts.poppins(
+          fontSize: 32,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        ),
+        bodyLarge: GoogleFonts.poppins(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: Colors.white,
+        ),
+        bodyMedium: GoogleFonts.poppins(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          color: Colors.grey[500],
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFF1a1a1a),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey[800]!),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey[800]!, width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(
+            color: Color(0xFF8b5cf6),
+            width: 2.5,
+          ),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF8b5cf6),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 4,
+          shadowColor: const Color(0xFF8b5cf6).withOpacity(0.3),
+        ),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: const Color(0xFF0f0f0f),
+        selectedItemColor: const Color(0xFF8b5cf6),
+        unselectedItemColor: Colors.grey[600],
+        type: BottomNavigationBarType.fixed,
+        elevation: 16,
+      ),
     );
-  }
-
-  // ThemeData general (retorna el tema correcto según isDarkMode)
-  ThemeData get themeData {
-    return _isDarkMode ? _darkTheme : _lightTheme;
-  }
-
-  @override
-  void dispose() {
-    _cancelAdaptiveTimer();
-    super.dispose();
   }
 }
