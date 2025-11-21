@@ -351,24 +351,34 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 mainAxisAlignment:
                                     MainAxisAlignment.center,
                                 children: [
-                                  _buildIndicatorPill(
-                                    isDarkMode
-                                        ? Icons.dark_mode_rounded
-                                        : Icons.light_mode_rounded,
-                                    isDarkMode
-                                        ? (selectedLanguage == 'es'
-                                            ? 'Oscuro'
-                                            : 'Dark')
-                                        : (selectedLanguage == 'es'
-                                            ? 'Claro'
-                                            : 'Light'),
+                                  GestureDetector(
+                                    onTap: () {
+                                      themeProvider.toggleTheme();
+                                    },
+                                    child: _buildIndicatorPill(
+                                      isDarkMode
+                                          ? Icons.dark_mode_rounded
+                                          : Icons.light_mode_rounded,
+                                      isDarkMode
+                                          ? (selectedLanguage == 'es'
+                                              ? 'Oscuro'
+                                              : 'Dark')
+                                          : (selectedLanguage == 'es'
+                                              ? 'Claro'
+                                              : 'Light'),
+                                    ),
                                   ),
                                   const SizedBox(width: 12),
-                                  _buildIndicatorPill(
-                                    Icons.language_rounded,
-                                    selectedLanguage == 'es'
-                                        ? 'Español'
-                                        : 'English',
+                                  GestureDetector(
+                                    onTap: () {
+                                      themeProvider.toggleLanguage();
+                                    },
+                                    child: _buildIndicatorPill(
+                                      Icons.language_rounded,
+                                      selectedLanguage == 'es'
+                                          ? 'Español'
+                                          : 'English',
+                                    ),
                                   ),
                                 ],
                               )

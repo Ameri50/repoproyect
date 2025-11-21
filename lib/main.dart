@@ -12,10 +12,9 @@ Future<void> main() async {
   
   // Inicializa Supabase
   await Supabase.initialize(
-    url: 'https://YOUR_PROJECT_ID.supabase.co',
-    anonKey: 'YOUR_ANON_KEY',
+    url: 'https://txkjtmcifdmvfolwpywr.supabase.co',
+    anonKey: 'sb_publishable_lJmOfGoyALi04_b2DiicnA_dWcDMHka',
   );
-
   runApp(const MyApp());
 }
 
@@ -64,11 +63,11 @@ class AuthWrapper extends StatelessWidget {
         }
 
         final session = snapshot.data?.session;
-        
+
         if (session != null) {
           return const DashboardScreen();
         }
-        
+
         return const WelcomeScreen();
       },
     );
