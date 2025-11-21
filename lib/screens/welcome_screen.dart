@@ -5,7 +5,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mentoria/providers/theme_provider.dart';
-import 'dashboard_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -25,6 +24,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       'quote':
           '"El éxito no es final, el fracaso no es fatal: es el coraje para continuar lo que cuenta."',
       'buttonText': 'Comienza tu camino',
+      'loginText': 'Ya tengo cuenta',
       'description':
           'Aprende de mentores expertos, crece personalmente y alcanza tus metas académicas',
     },
@@ -34,6 +34,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       'quote':
           '"Success is not final, failure is not fatal: it is the courage to continue that counts."',
       'buttonText': 'Start your journey',
+      'loginText': 'I have an account',
       'description':
           'Learn from expert mentors, grow personally and reach your academic goals',
     },
@@ -56,6 +57,26 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void _navigateToAuth({bool isLogin = false}) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            AuthScreen(isLogin: isLogin),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -265,6 +286,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               .fadeIn(),
                           Column(
                             children: [
+                              // Botón de Registro
                               Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(32),
@@ -279,33 +301,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                   ],
                                 ),
                                 child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      PageRouteBuilder(
-                                        pageBuilder:
-                                            (context, animation,
-                                                    secondaryAnimation) =>
-                                                const DashboardScreen(),
-                                        transitionsBuilder: (context,
-                                            animation,
-                                            secondaryAnimation,
-                                            child) {
-                                          const begin = Offset(1.0, 0.0);
-                                          const end = Offset.zero;
-                                          const curve = Curves.easeInOut;
-                                          var tween = Tween(
-                                                  begin: begin, end: end)
-                                              .chain(CurveTween(curve: curve));
-                                          return SlideTransition(
-                                            position:
-                                                animation.drive(tween),
-                                            child: child,
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  },
+                                  onPressed: () => _navigateToAuth(isLogin: false),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor:
                                         const Color(0xFF06b6d4),
@@ -346,6 +342,22 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                     curve: Curves.easeOut,
                                   )
                                   .fadeIn(),
+                              const SizedBox(height: 12),
+                              // Botón de Login
+                              GestureDetector(
+                                onTap: () => _navigateToAuth(isLogin: true),
+                                child: Text(
+                                  getText('loginText', selectedLanguage),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              )
+                                  .animate()
+                                  .fadeIn(duration: 600.ms, delay: 900.ms),
                               const SizedBox(height: 24),
                               Row(
                                 mainAxisAlignment:
@@ -438,7 +450,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       ),
     );
   }
+  
+  // ignore: non_constant_identifier_names
+  AuthScreen({required bool isLogin}) {}
 }
+
+
 
 class ParticlePainter extends CustomPainter {
   final double animationValue;

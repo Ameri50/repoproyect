@@ -51,6 +51,8 @@ class ThemeProvider extends ChangeNotifier {
     }
   }
 
+  get language => null;
+
   // Inicializar SharedPreferences
   Future<void> _initializePreferences() async {
     _prefs = await SharedPreferences.getInstance();
